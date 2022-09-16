@@ -4,6 +4,7 @@ private:
   int backward_input_;
   int speed_input_;
   int speed_;
+  int speed_offset_;
 
 public:
   WheelController(int forward_input, int backward_input, int speed_input) {
@@ -11,9 +12,20 @@ public:
     this->backward_input_ = backward_input;
     this->speed_input_ = speed_input;
     this->speed_ = 0;
+    this->speed_offset_ = 0;
+  }
+
+  void SetOffset(int offset) {
+    this->speed_offset_ = offset;
+    SetSpeed(this->speed_);
+  }
+
+  void GetOffest() {
+    return this->speed_offset_;
   }
 
   void SetSpeed(int speed) {
+    speed += this->speed_offset_;
     if (speed < 0)
       speed = 0;
     else if (speed > 255)
@@ -138,6 +150,7 @@ void setup() {
 
   WheelController* left_wheel = new WheelController(IN1, IN2, ENA);
   WheelController* right_wheel = new WheelController(IN3, IN4, ENB);
+  right_wheel->SetOffset(25);
   robot_controller = new RobotController(left_wheel, right_wheel);
   robot_controller->SetSpeed(100);
 
@@ -182,10 +195,11 @@ void loop() {
   if (d <= 10) {
     robot_controller->Stop();
     delay(1000);
+    robot_controller->SetSpeed(100);
     robot_controller->TurnLeft();
-    delay(100);
+    delay(1000);
     robot_controller->MoveForward();
-    time += 1000;
+    time += 2000;
   }
   
 }
