@@ -111,7 +111,7 @@ public:
       right_wheel_->MoveForward();
     }
 
-    delay(4.11 * abs(degree));
+    delay(3.8 * abs(degree));
 
     Stop();
   }
@@ -139,6 +139,7 @@ const int IN3 = 9;
 const int IN4 = 10;
 const int TRIG = 4;
 const int ECHO = 3;
+const bool is_active = false;
 void setup() {
   Serial.begin(9600);
   pinMode(IN1, OUTPUT);
@@ -150,17 +151,17 @@ void setup() {
 
   WheelController* left_wheel = new WheelController(IN1, IN2, ENA);
   WheelController* right_wheel = new WheelController(IN3, IN4, ENB);
-  right_wheel->SetOffset(25);
+  right_wheel->SetOffset(20);
   robot_controller = new RobotController(left_wheel, right_wheel);
   robot_controller->SetSpeed(100);
 
-  robot_controller->MoveForward();
+  //robot_controller->MoveForward();
 
-  /*
+  
   robot_controller->TurnLeft();
   delay(2000);
   robot_controller->TurnDegree(45);
-  */
+  
 }
 
 int distance() {
@@ -176,6 +177,8 @@ int distance() {
 
 int time = 0;
 void loop() {
+  if (!is_active)
+    return;
 
   if (time >= 10000) {
     robot_controller->Stop();
@@ -186,13 +189,13 @@ void loop() {
   int d = distance();
   Serial.println(d);
   
-  if (d <= 20)
+  if (d <= 25)
     robot_controller->SetSpeed(50);
   else {
     robot_controller->SetSpeed(100);
   }
 
-  if (d <= 10) {
+  if (d <= 15) {
     robot_controller->Stop();
     delay(1000);
     robot_controller->SetSpeed(100);
