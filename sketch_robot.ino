@@ -139,7 +139,7 @@ const int IN3 = 9;
 const int IN4 = 10;
 const int TRIG = 4;
 const int ECHO = 3;
-const bool is_active = false;
+const bool is_active = true;
 void setup() {
   Serial.begin(9600);
   pinMode(IN1, OUTPUT);
@@ -153,15 +153,9 @@ void setup() {
   WheelController* right_wheel = new WheelController(IN3, IN4, ENB);
   right_wheel->SetOffset(20);
   robot_controller = new RobotController(left_wheel, right_wheel);
+
   robot_controller->SetSpeed(100);
-
-  //robot_controller->MoveForward();
-
-  
-  robot_controller->TurnLeft();
-  delay(2000);
-  robot_controller->TurnDegree(45);
-  
+  robot_controller->MoveForward(); 
 }
 
 int distance() {
@@ -204,5 +198,4 @@ void loop() {
     robot_controller->MoveForward();
     time += 2000;
   }
-  
 }
