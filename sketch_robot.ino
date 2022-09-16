@@ -20,7 +20,7 @@ public:
     SetSpeed(this->speed_);
   }
 
-  void GetOffest() {
+  int GetOffest() {
     return this->speed_offset_;
   }
 
@@ -111,7 +111,7 @@ public:
       right_wheel_->MoveForward();
     }
 
-    delay(3.8 * abs(degree));
+    delay(2.9 * abs(degree));
 
     Stop();
   }
@@ -139,7 +139,7 @@ const int IN3 = 9;
 const int IN4 = 10;
 const int TRIG = 4;
 const int ECHO = 3;
-const bool is_active = true;
+bool is_active = false;
 void setup() {
   Serial.begin(9600);
   pinMode(IN1, OUTPUT);
@@ -151,11 +151,12 @@ void setup() {
 
   WheelController* left_wheel = new WheelController(IN1, IN2, ENA);
   WheelController* right_wheel = new WheelController(IN3, IN4, ENB);
-  right_wheel->SetOffset(20);
+  //right_wheel->SetOffset(20);
   robot_controller = new RobotController(left_wheel, right_wheel);
 
   robot_controller->SetSpeed(100);
-  robot_controller->MoveForward(); 
+  if (is_active)
+    robot_controller->MoveForward(); 
 }
 
 int distance() {
@@ -169,19 +170,39 @@ int distance() {
   return s;
 }
 
-int time = 0;
+int incoming_value = 0;
 void loop() {
+  if (Serial.available() > 0) {
+    incoming_value = Serial.read();
+    Serial.println(incoming_value);
+
+    if(incoming_value == '1')
+      robot_controller->TurnLeft();
+    else if(incoming_value == '2') {
+      robot_controller->MoveForward();
+      delay(1000);
+      robot_controller->Stop();
+    }
+    else if(incoming_value == '3')
+      robot_controller->TurnRight();
+    else if(incoming_value == '4') {
+      robot_controller->MoveBackwards();
+      delay(1000);
+      robot_controller->Stop();
+    }
+    else if(incoming_value == '5')
+      is_active = !is_active;
+      if (is_active)
+        robot_controller->MoveForward();
+      else
+        robot_controller->Stop();
+  }
+
   if (!is_active)
     return;
 
-  if (time >= 10000) {
-    robot_controller->Stop();
-    return;
-  }
-  time += 1;
-
   int d = distance();
-  Serial.println(d);
+  //Serial.println(d);
   
   if (d <= 25)
     robot_controller->SetSpeed(50);
@@ -196,6 +217,5 @@ void loop() {
     robot_controller->TurnLeft();
     delay(1000);
     robot_controller->MoveForward();
-    time += 2000;
   }
 }
